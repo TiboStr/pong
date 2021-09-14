@@ -10,52 +10,56 @@ if (!context) {
 }
 
 class AbstractPlayer {
-    constructor() {
-        this.height = 70;
-        this.width = 15;
-        this.stepSize = 12;
+    static height = 70;
+    static width = 15;
+    static stepSize = 12;
+
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.draw();
     }
 
-    draw(x, y) {
+    draw() {
         context.fillStyle = 'chartreuse';
-        context.fillRect(x, y, this.width, this.height);
+        context.fillRect(this.x, this.y, AbstractPlayer.width, AbstractPlayer.height);
+    }
+
+    moveUp() {
+        context.clearRect(this.x, this.y, AbstractPlayer.width, AbstractPlayer.height);
+        this.y = this.y - AbstractPlayer.stepSize > 0 ? this.y - AbstractPlayer.stepSize : this.y;
+        this.draw(this.x, this.y);
+    }
+
+    moveDown() {
+        context.clearRect(this.x, this.y, AbstractPlayer.width, AbstractPlayer.height);
+        this.y = this.y + AbstractPlayer.height + AbstractPlayer.stepSize < canvasHeight ? this.y + AbstractPlayer.stepSize : this.y;
+        this.draw(this.x, this.y);
     }
 
 }
 
 class Player extends AbstractPlayer {
     constructor() {
-        super();
-        this.x = 10;
-        this.y = canvasHeight / 2 - this.height / 2
-        super.draw(this.x, this.y);
-
+        super(10, canvasHeight / 2 - AbstractPlayer.height / 2);
         window.onkeydown = e => this.move(e.keyCode);
     }
 
     move(keyCode) {
         switch (keyCode) {
             case 38:
-                context.clearRect(this.x, this.y, this.width, this.height);
-                this.y = this.y - this.stepSize > 0 ? this.y - this.stepSize : this.y;
-                super.draw(this.x, this.y);
+                super.moveUp();
                 break;
             case 40:
-                context.clearRect(this.x, this.y, this.width, this.height);
-                this.y = this.y + this.height + this.stepSize < canvasHeight ? this.y + this.stepSize : this.y;
-                super.draw(this.x, this.y);
+                super.moveDown();
                 break;
         }
-
     }
 }
 
 class Enemy extends AbstractPlayer {
     constructor() {
-        super();
-        this.x = canvasWidth - this.width - 10;
-        this.y = canvasHeight / 2 - this.height / 2
-        super.draw(this.x, this.y);
+        super(canvasWidth - AbstractPlayer.width - 10, canvasHeight / 2 - AbstractPlayer.height / 2);
     }
 }
 
@@ -75,7 +79,7 @@ class Score {
         this.enemyScore = 0;
         this.drawScore();
     }
-    
+
     drawScore() {
         context.fillStyle = 'white';
         context.textAlign = 'center';
