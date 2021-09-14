@@ -11,37 +11,51 @@ if (!context) {
 
 class AbstractPlayer {
     constructor() {
-        context.fillStyle = 'chartreuse';
         this.height = 70;
         this.width = 15;
+        this.stepSize = 12;
     }
+
+    draw(x, y) {
+        context.fillStyle = 'chartreuse';
+        context.fillRect(x, y, this.width, this.height);
+    }
+
 }
 
-class Player extends AbstractPlayer{
+class Player extends AbstractPlayer {
     constructor() {
         super();
-        context.fillRect(10, canvasHeight/2-this.height/2, this.width, this.height);
+        this.x = 10;
+        this.y = canvasHeight / 2 - this.height / 2
+        super.draw(this.x, this.y);
 
         window.onkeydown = e => this.move(e.keyCode);
     }
-    
+
     move(keyCode) {
-        switch(keyCode) {
+        switch (keyCode) {
             case 38:
-                alert("up");
+                context.clearRect(this.x, this.y, this.width, this.height);
+                this.y = this.y - this.stepSize > 0 ? this.y - this.stepSize : this.y;
+                super.draw(this.x, this.y);
                 break;
             case 40:
-                alert("down");
+                context.clearRect(this.x, this.y, this.width, this.height);
+                this.y = this.y + this.height + this.stepSize < canvasHeight ? this.y + this.stepSize : this.y;
+                super.draw(this.x, this.y);
                 break;
         }
-        
+
     }
 }
 
 class Enemy extends AbstractPlayer {
     constructor() {
         super();
-        context.fillRect(canvasWidth - this.width - 10, canvasHeight/2-this.height/2, this.width, this.height);
+        this.x = canvasWidth - this.width - 10;
+        this.y = canvasHeight / 2 - this.height / 2
+        super.draw(this.x, this.y);
     }
 }
 
@@ -49,7 +63,7 @@ class Ball {
     constructor() {
         context.fillStyle = 'red';
         context.beginPath();
-        context.arc(canvasWidth/2, canvasHeight/2, 15, 0, 2 * Math.PI);
+        context.arc(canvasWidth / 2, canvasHeight / 2, 15, 0, 2 * Math.PI);
         context.fill();
     }
 }
@@ -61,11 +75,12 @@ class Score {
         this.enemyScore = 0;
         this.drawScore();
     }
+    
     drawScore() {
         context.fillStyle = 'white';
         context.textAlign = 'center';
         context.font = "40px serif"
-        context.fillText(`${this.playerScore} - ${this.enemyScore}`, canvasWidth/2, 50);
+        context.fillText(`${this.playerScore} - ${this.enemyScore}`, canvasWidth / 2, 50);
     }
 }
 
