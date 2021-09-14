@@ -1,0 +1,13 @@
+body {
+    background-color: rgb(250, 250, 250);
+}
+h1 {
+    text-align: center;
+    text-transform: uppercase;
+}
+
+#game {
+    background-color: rgb(31, 30, 30);
+    display: block;
+    margin: auto auto;
+}
