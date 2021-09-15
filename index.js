@@ -88,7 +88,23 @@ class Score {
     }
 }
 
-document.onload = begin();
+
+document.onload = startScreen();
+
+function startScreen() {
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.font = "40px serif"
+    context.fillText("Press any key to start the game", canvasWidth / 2, canvasHeight/2);
+    canvas.classList.add("blink");
+
+    window.onkeydown = () => {
+        canvas.classList.remove("blink");
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        begin();  
+    }
+
+}
 
 async function begin() {
     new Player();
