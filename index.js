@@ -68,6 +68,7 @@ class Ball {
         this.height = canvasHeight / 2.0;
         this.width = canvasWidth / 2.0;
         this.angle = 45;
+        this.r = 15.0;
 
         this.draw();
     }
@@ -75,7 +76,7 @@ class Ball {
     draw(){
         context.fillStyle = 'red';
         context.beginPath();
-        context.arc(this.width, this.height, 15.0, 0, 2 * Math.PI);
+        context.arc(this.width, this.height, this.r, 0, 2 * Math.PI);
         context.fill();
         context.closePath();
     }
@@ -88,12 +89,19 @@ class Ball {
         return width;
     }
 
-    touchWall(){
-        return this.width <= 15.0 || this.height <= 15.0 || this.width >= canvasWidth - 15.0 || this.height >= canvasHeight - 15.0
+    touchWall(player, enemy){
+        return this.width <= this.r || this.height <= this.r || this.width >= canvasWidth - this.r || this.height >= canvasHeight - this.r 
     }
 
-    move() {
-        if(this.touchWall()){
+    touchPlayer(player, enemy){
+        return (player.x + 15 >= this.width - this.r && player.y <= this.height && player.y + 70 >= this.height) || (enemy.x <= this.width + this.r && enemy.y <= this.height && enemy.y + 70 >= this.height)
+    }
+
+    act(player, enemy, score) {
+        if(this.touchWall(player, enemy)){
+            this.bounce();
+        }
+        else if(this.touchPlayer(player, enemy)){
             this.bounce();
         }
         context.clearRect(this.width-22.21, this.height-22.21, 60, 60);
@@ -154,7 +162,7 @@ async function begin() {
     while (true){
         await new Promise(r => setTimeout(r, 1))
         context.clearRect(0, 0, canvas.width, canvas.height);
-        ball.move();
+        ball.act(player, enemy, score);
         objects.forEach(e => e.draw())
     }
     
