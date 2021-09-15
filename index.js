@@ -65,11 +65,45 @@ class Enemy extends AbstractPlayer {
 
 class Ball {
     constructor() {
+        this.height = canvasHeight / 2.0;
+        this.width = canvasWidth / 2.0;
+
+        this.draw();
+    }
+
+    draw(){
         context.fillStyle = 'red';
         context.beginPath();
-        context.arc(canvasWidth / 2, canvasHeight / 2, 15, 0, 2 * Math.PI);
+        context.arc(this.width, this.height, 15.0, 0, 2 * Math.PI);
         context.fill();
+        context.closePath();
     }
+
+    getHeigth(){
+        return height;
+    }
+
+    getWidth(){
+        return width;
+    }
+
+    touchWall(){
+        return this.width <= 15.0 || this.height <= 15.0 || this.width >= canvasWidth - 15.0 || this.height >= canvasHeight - 15.0
+    }
+
+    move(angel) {
+        if(this.touchWall()){
+            bounce(angel);
+        }else{
+            context.clearRect(this.width-22.21, this.height-22.21, 30, 60);
+            let radians = angel * Math.PI / 180.0;
+            this.width += Math.cos(radians);
+            this.heigth += Math.sin(radians);
+            this.draw();
+            this.move(angel);
+        }
+    }
+
 }
 
 
@@ -108,10 +142,11 @@ function startScreen() {
 
 async function begin() {
     new Player();
-    new Ball();
+    const ball = new Ball();
     new Enemy();
     new Score();
     await new Promise(r => setTimeout(r, 2000))
+    ball.move(45)
 
 }
 
