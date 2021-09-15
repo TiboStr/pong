@@ -67,6 +67,7 @@ class Ball {
     constructor() {
         this.height = canvasHeight / 2.0;
         this.width = canvasWidth / 2.0;
+        this.angle = 45;
 
         this.draw();
     }
@@ -91,17 +92,21 @@ class Ball {
         return this.width <= 15.0 || this.height <= 15.0 || this.width >= canvasWidth - 15.0 || this.height >= canvasHeight - 15.0
     }
 
-    move(angel) {
+    move() {
         if(this.touchWall()){
-            bounce(angel);
-        }else{
-            context.clearRect(this.width-22.21, this.height-22.21, 30, 60);
-            let radians = angel * Math.PI / 180.0;
-            this.width += Math.cos(radians);
-            this.heigth += Math.sin(radians);
-            this.draw();
-            this.move(angel);
+            this.bounce();
         }
+        context.clearRect(this.width-22.21, this.height-22.21, 60, 60);
+        let radians = this.angle * Math.PI / 180.0;
+        this.width += Math.cos(radians)*1.5;
+        this.height += Math.sin(radians)*1.5;
+        this.draw();
+        
+    }
+
+    bounce(){
+        this.angle += 90;
+        this.angle %= 360;
     }
 
 }
@@ -111,10 +116,10 @@ class Score {
     constructor() {
         this.playerScore = 0;
         this.enemyScore = 0;
-        this.drawScore();
+        this.draw();
     }
 
-    drawScore() {
+    draw() {
         context.fillStyle = 'white';
         context.textAlign = 'center';
         context.font = "40px serif"
@@ -141,12 +146,18 @@ function startScreen() {
 }
 
 async function begin() {
-    new Player();
+    const player = new Player();
     const ball = new Ball();
-    new Enemy();
-    new Score();
-    await new Promise(r => setTimeout(r, 2000))
-    ball.move(45)
+    const enemy = new Enemy();
+    const score = new Score();
+    const objects = [player,  ball, enemy, score];
+    while (true){
+        await new Promise(r => setTimeout(r, 1))
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        ball.move();
+        objects.forEach(e => e.draw())
+    }
+    
 
 }
 
