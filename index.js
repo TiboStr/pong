@@ -101,11 +101,11 @@ class Ball {
     }
 
     touchWall(player, enemy) {
-        return this.width <= this.r || this.height <= this.r || this.width >= canvasWidth - this.r || this.height >= canvasHeight - this.r
+        return this.width <= this.r || this.height <= this.r || this.width >= canvasWidth - this.r || this.height >= canvasHeight - this.r;
     }
 
     touchPlayer(player, enemy) {
-        return (player.x + 15 >= this.width - this.r && player.y <= this.height && player.y + 70 >= this.height) || (enemy.x <= this.width + this.r && enemy.y <= this.height && enemy.y + 70 >= this.height)
+        return (player.x + 15 >= this.width - this.r && player.y <= this.height && player.y + 70 >= this.height) || (enemy.x <= this.width + this.r && enemy.y <= this.height && enemy.y + 70 >= this.height);
     }
 
     act(player, enemy, score) {
@@ -141,7 +141,7 @@ class Score {
     draw() {
         context.fillStyle = 'white';
         context.textAlign = 'center';
-        context.font = "40px serif"
+        context.font = "40px serif";
         context.fillText(`${this.playerScore} - ${this.enemyScore}`, canvasWidth / 2, 50);
     }
 }
@@ -149,31 +149,38 @@ class Score {
 
 document.onload = startScreen();
 
+function startScreenHandler() {
+    canvas.classList.remove("blink");
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
+    begin();
+}
+
 function startScreen() {
     context.fillStyle = 'white';
     context.textAlign = 'center';
-    context.font = "40px serif"
+    context.font = "40px serif";
     context.fillText("Press any key to start the game", canvasWidth / 2, canvasHeight / 2);
     canvas.classList.add("blink");
 
-    ["keydown", "mousedown"].forEach(evt => window.addEventListener(evt, () => {
-        canvas.classList.remove("blink");
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
-        begin();
-    }));
+    ["keydown", "mousedown"].forEach(evt => window.addEventListener(evt, startScreenHandler));
 }
 
+
 async function begin() {
+    window.removeEventListener('keydown', startScreenHandler);
+    window.removeEventListener('mousedown', startScreenHandler);
+
     const player = new Player();
     const ball = new Ball();
     const enemy = new Enemy();
     const score = new Score();
     const objects = [player, ball, enemy, score];
+
     while (true) {
-        await new Promise(r => setTimeout(r, 1))
+        await new Promise(r => setTimeout(r, 1));
         context.clearRect(0, 0, canvas.width, canvas.height);
         ball.act(player, enemy, score);
-        objects.forEach(e => e.draw())
+        objects.forEach(e => e.draw());
     }
 
 }
