@@ -42,15 +42,26 @@ class AbstractPlayer {
 class Player extends AbstractPlayer {
     constructor() {
         super(10, canvasHeight / 2 - AbstractPlayer.height / 2);
-        window.onkeydown = e => this.move(e.keyCode);
+        window.onkeydown = e => this.moveWithKey(e.keyCode);
+        canvas.onmousemove = e => this.moveWithMouse(e);
     }
 
-    move(keyCode) {
+    moveWithMouse(evt) {
+        if (evt.offsetY > this.y + AbstractPlayer.height) {
+            super.moveDown();
+        } else if (evt.offsetY < this.y) {
+            super.moveUp();
+        }
+    }
+    moveWithKey(keyCode) {
         switch (keyCode) {
-            case 38:
+            case 38:  // arrow up
+            case 90:  // z
+            case 87:  // w
                 super.moveUp();
                 break;
-            case 40:
+            case 40:  // arrow down
+            case 83:  // s
                 super.moveDown();
                 break;
         }
@@ -73,7 +84,7 @@ class Ball {
         this.draw();
     }
 
-    draw(){
+    draw() {
         context.fillStyle = 'red';
         context.beginPath();
         context.arc(this.width, this.height, this.r, 0, 2 * Math.PI);
@@ -81,38 +92,38 @@ class Ball {
         context.closePath();
     }
 
-    getHeigth(){
+    getHeigth() {
         return height;
     }
 
-    getWidth(){
+    getWidth() {
         return width;
     }
 
-    touchWall(player, enemy){
-        return this.width <= this.r || this.height <= this.r || this.width >= canvasWidth - this.r || this.height >= canvasHeight - this.r 
+    touchWall(player, enemy) {
+        return this.width <= this.r || this.height <= this.r || this.width >= canvasWidth - this.r || this.height >= canvasHeight - this.r
     }
 
-    touchPlayer(player, enemy){
+    touchPlayer(player, enemy) {
         return (player.x + 15 >= this.width - this.r && player.y <= this.height && player.y + 70 >= this.height) || (enemy.x <= this.width + this.r && enemy.y <= this.height && enemy.y + 70 >= this.height)
     }
 
     act(player, enemy, score) {
-        if(this.touchWall(player, enemy)){
+        if (this.touchWall(player, enemy)) {
             this.bounce();
         }
-        else if(this.touchPlayer(player, enemy)){
+        else if (this.touchPlayer(player, enemy)) {
             this.bounce();
         }
-        context.clearRect(this.width-22.21, this.height-22.21, 60, 60);
+        context.clearRect(this.width - 22.21, this.height - 22.21, 60, 60);
         let radians = this.angle * Math.PI / 180.0;
-        this.width += Math.cos(radians)*1.5;
-        this.height += Math.sin(radians)*1.5;
+        this.width += Math.cos(radians) * 1.5;
+        this.height += Math.sin(radians) * 1.5;
         this.draw();
-        
+
     }
 
-    bounce(){
+    bounce() {
         this.angle += 90;
         this.angle %= 360;
     }
@@ -142,15 +153,14 @@ function startScreen() {
     context.fillStyle = 'white';
     context.textAlign = 'center';
     context.font = "40px serif"
-    context.fillText("Press any key to start the game", canvasWidth / 2, canvasHeight/2);
+    context.fillText("Press any key to start the game", canvasWidth / 2, canvasHeight / 2);
     canvas.classList.add("blink");
 
-    window.onkeydown = () => {
+    ["keydown", "mousedown"].forEach(evt => window.addEventListener(evt, () => {
         canvas.classList.remove("blink");
         context.clearRect(0, 0, canvasWidth, canvasHeight);
-        begin();  
-    }
-
+        begin();
+    }));
 }
 
 async function begin() {
@@ -158,14 +168,13 @@ async function begin() {
     const ball = new Ball();
     const enemy = new Enemy();
     const score = new Score();
-    const objects = [player,  ball, enemy, score];
-    while (true){
+    const objects = [player, ball, enemy, score];
+    while (true) {
         await new Promise(r => setTimeout(r, 1))
         context.clearRect(0, 0, canvas.width, canvas.height);
         ball.act(player, enemy, score);
         objects.forEach(e => e.draw())
     }
-    
 
 }
 
