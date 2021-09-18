@@ -4,7 +4,6 @@ const context = canvas.getContext('2d');
 const canvasHeight = canvas.height;
 const canvasWidth = canvas.width;
 
-
 if (!context) {
     alert("Please update your browser");
 }
@@ -55,13 +54,13 @@ class Player extends AbstractPlayer {
     }
     moveWithKey(keyCode) {
         switch (keyCode) {
-            case 38:  // arrow up
-            case 90:  // z
-            case 87:  // w
+            case 38: // arrow up
+            case 90: // z
+            case 87: // w
                 super.moveUp();
                 break;
-            case 40:  // arrow down
-            case 83:  // s
+            case 40: // arrow down
+            case 83: // s
                 super.moveDown();
                 break;
         }
@@ -78,10 +77,14 @@ class Ball {
     constructor() {
         this.height = canvasHeight / 2.0;
         this.width = canvasWidth / 2.0;
-        this.angle = 45;
+        this.angle = this.getRandomAngle();
         this.r = 15.0;
 
         this.draw();
+    }
+
+    getRandomAngle() {
+        return Math.random() * 90 - 45 + (Math.random() < 0.5 ? 180 : 0);
     }
 
     draw() {
@@ -100,20 +103,38 @@ class Ball {
         return width;
     }
 
+    // If ball touches left wall, return 0. If ball touches upper wall, return 1...
+    // If ball touches player, return 4. If ball touches enemy, return 5.
+    // If ball touches nothing, return -1
+
+    getWall(player, enemy) {
+        if (this.width <= this.r) {
+            return 0;
+        } else if (this.height <= this.r) {
+            return 1;
+        } else if (this.width >= canvasWidth - this.r) {
+            return 2;
+        } else if (this.height >= canvasHeight - this.r) {
+            return 3;
+        } else if (player.x + 15 >= this.width - this.r && player.y <= this.height && player.y + 70 >= this.height) {
+            return 4;
+        } else if (enemy.x <= this.width + this.r && enemy.y <= this.height && enemy.y + 70 >= this.height) {
+            return 5;
+        }
+        return -1;
+    }
+
     touchWall(player, enemy) {
-        return this.width <= this.r || this.height <= this.r || this.width >= canvasWidth - this.r || this.height >= canvasHeight - this.r;
+        return [0, 1, 2, 3].includes(this.getWall(player, enemy));
     }
 
     touchPlayer(player, enemy) {
-        return (player.x + 15 >= this.width - this.r && player.y <= this.height && player.y + 70 >= this.height) || (enemy.x <= this.width + this.r && enemy.y <= this.height && enemy.y + 70 >= this.height);
+        return [4, 5].includes(this.getWall(player, enemy));
     }
 
     act(player, enemy, score) {
-        if (this.touchWall(player, enemy)) {
-            this.bounce();
-        }
-        else if (this.touchPlayer(player, enemy)) {
-            this.bounce();
+        if (this.getWall(player, enemy) != -1) {
+            this.bounce(player, enemy);
         }
         context.clearRect(this.width - 22.21, this.height - 22.21, 60, 60);
         let radians = this.angle * Math.PI / 180.0;
@@ -123,9 +144,17 @@ class Ball {
 
     }
 
-    bounce() {
-        this.angle += 90;
-        this.angle %= 360;
+    bounce(player, enemy) {
+        let surfaceAngle = [90, 0, 90, 0, 90, 90];
+        let wall = this.getWall(player, enemy);
+        if (wall < 0 || wall > 5) {
+            throw {
+                name: "AssertionError",
+                message: "invalid wall"
+            };
+        }
+        let a = surfaceAngle[wall] * 2 - this.angle;
+        this.angle = a >= 360 ? a - 360 : a < 0 ? a + 360 : a;
     }
 
 }
@@ -184,4 +213,3 @@ async function begin() {
     }
 
 }
-
