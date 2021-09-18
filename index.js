@@ -145,7 +145,7 @@ class Ball {
     }
 
     bounce(player, enemy) {
-        let surfaceAngle = { 0: 90, 1: 0, 2: 90, 3: 0, 4: 90, 5: 90 };
+        let surfaceAngle = [90, 0, 90, 0, 90, 90];
         let wall = this.getWall(player, enemy);
         if (wall < 0 || wall > 5) {
             throw {
