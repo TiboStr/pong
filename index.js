@@ -75,12 +75,16 @@ class Enemy extends AbstractPlayer {
 
 class Ball {
     constructor() {
+        this.initialize()
+
+        this.draw();
+    }
+
+    initialize() {
         this.height = canvasHeight / 2.0;
         this.width = canvasWidth / 2.0;
         this.angle = this.getRandomAngle();
         this.r = 15.0;
-
-        this.draw();
     }
 
     getRandomAngle() {
@@ -124,6 +128,10 @@ class Ball {
         return -1;
     }
 
+    touchesVerticalWall(player, enemy) {
+        return this.getWall(player, enemy) == 0 || this.getWall(player, enemy) == 2;
+    }
+
     touchWall(player, enemy) {
         return [0, 1, 2, 3].includes(this.getWall(player, enemy));
     }
@@ -134,14 +142,23 @@ class Ball {
 
     act(player, enemy, score) {
         if (this.getWall(player, enemy) != -1) {
-            this.bounce(player, enemy);
+            if (this.touchesVerticalWall(player, enemy)) {
+                if (this.getWall(player, enemy) == 0) {
+                    score.enemyScores();
+                } else {
+                    score.playerScores();
+                }
+                this.initialize();
+
+            } else {
+                this.bounce(player, enemy);
+            }
         }
         context.clearRect(this.width - 22.21, this.height - 22.21, 60, 60);
         let radians = this.angle * Math.PI / 180.0;
         this.width += Math.cos(radians) * 1.5;
         this.height += Math.sin(radians) * 1.5;
         this.draw();
-
     }
 
     bounce(player, enemy) {
@@ -172,6 +189,14 @@ class Score {
         context.textAlign = 'center';
         context.font = "40px serif";
         context.fillText(`${this.playerScore} - ${this.enemyScore}`, canvasWidth / 2, 50);
+    }
+
+    playerScores() {
+        this.playerScore += 1;
+    }
+
+    enemyScores() {
+        this.enemyScore += 1;
     }
 }
 
