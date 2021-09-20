@@ -24,15 +24,15 @@ class AbstractPlayer {
         context.fillRect(this.x, this.y, AbstractPlayer.width, AbstractPlayer.height);
     }
 
-    moveUp() {
+    moveUp(speed = AbstractPlayer.stepSize) {
         context.clearRect(this.x, this.y, AbstractPlayer.width, AbstractPlayer.height);
-        this.y = this.y - AbstractPlayer.stepSize > 0 ? this.y - AbstractPlayer.stepSize : this.y;
+        this.y = this.y - speed > 0 ? this.y - speed : this.y;
         this.draw(this.x, this.y);
     }
 
-    moveDown() {
+    moveDown(speed = AbstractPlayer.stepSize) {
         context.clearRect(this.x, this.y, AbstractPlayer.width, AbstractPlayer.height);
-        this.y = this.y + AbstractPlayer.height + AbstractPlayer.stepSize < canvasHeight ? this.y + AbstractPlayer.stepSize : this.y;
+        this.y = this.y + AbstractPlayer.height + speed < canvasHeight ? this.y + speed : this.y;
         this.draw(this.x, this.y);
     }
 
@@ -71,6 +71,14 @@ class Enemy extends AbstractPlayer {
     constructor() {
         super(canvasWidth - AbstractPlayer.width - 10, canvasHeight / 2 - AbstractPlayer.height / 2);
     }
+
+    followBall(ball) {
+        if (ball.height - ball.r < this.y) {
+            super.moveUp();
+        } else if (ball.height + ball.r > this.y + AbstractPlayer.height) {
+            super.moveDown();
+        }
+    }
 }
 
 class Ball {
@@ -97,14 +105,6 @@ class Ball {
         context.arc(this.width, this.height, this.r, 0, 2 * Math.PI);
         context.fill();
         context.closePath();
-    }
-
-    getHeigth() {
-        return height;
-    }
-
-    getWidth() {
-        return width;
     }
 
     // If ball touches left wall, return 0. If ball touches upper wall, return 1...
@@ -156,8 +156,8 @@ class Ball {
         }
         context.clearRect(this.width - 22.21, this.height - 22.21, 60, 60);
         let radians = this.angle * Math.PI / 180.0;
-        this.width += Math.cos(radians) * 1.5;
-        this.height += Math.sin(radians) * 1.5;
+        this.width += Math.cos(radians) * 1.75;
+        this.height += Math.sin(radians) * 1.75;
         this.draw();
     }
 
@@ -234,6 +234,9 @@ async function begin() {
         await new Promise(r => setTimeout(r, 1));
         context.clearRect(0, 0, canvas.width, canvas.height);
         ball.act(player, enemy, score);
+        if (Math.random() > 0.9) { // otherwise it's kina impossible to score a point
+            enemy.followBall(ball);
+        }
         objects.forEach(e => e.draw());
     }
 
